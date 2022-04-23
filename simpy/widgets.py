@@ -1,4 +1,4 @@
-#  Copyright 2021 by Benjamin J. Land (a.k.a. BenLand100)
+#  Copyright 2022 by Benjamin J. Land (a.k.a. BenLand100)
 #
 #  This file is part of Simpy.
 #

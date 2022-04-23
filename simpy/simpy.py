@@ -26,7 +26,7 @@ import signal
 import sys
 import re
 
-iconsize = QSize(16, 16)
+iconsize = QSize(32, 32)
 
 stylesheet = ''
   
@@ -39,9 +39,14 @@ class Simpy(QMainWindow):
         self.app = app
         
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setWindowIcon(QIcon.fromTheme('applications-python'))
-
         self.app_path = QFileInfo.path(QFileInfo(QCoreApplication.arguments()[0]))
+        
+        self.simpy_icon = QIcon()
+        self.simpy_icon.addFile(os.path.join(self.app_path,'icons/simpy_128x128.png'))
+        self.simpy_icon.addFile(os.path.join(self.app_path,'icons/simpy_64x64.png'))
+        self.simpy_icon.addFile(os.path.join(self.app_path,'icons/simpy_32x32.png'))
+        self.simpy_icon.addFile(os.path.join(self.app_path,'icons/simpy_16x16.png'))
+        self.setWindowIcon(self.simpy_icon)
         
         self.lineLabel = QLabel('[:]')
         self.statusBar().addPermanentWidget(self.lineLabel)
@@ -67,13 +72,13 @@ class Simpy(QMainWindow):
         
         self.highlighter = Highlighter(self.editor.document())
         
-        self.newAct = QAction('&New', self, shortcut=QKeySequence.New, statusTip='New File', triggered=self.handle_new)
-        self.openAct = QAction('&Open', self, shortcut=QKeySequence.Open, statusTip='Open File', triggered=self.handle_open)
-        self.saveAct = QAction('&Save', self, shortcut=QKeySequence.Save, statusTip='Save File', triggered=self.handle_save)
-        self.saveAsAct = QAction('&Save as ...', self, shortcut=QKeySequence.SaveAs, statusTip='Save File As', triggered=self.handle_save_as)
-        self.exitAct = QAction('Exit', self, shortcut=QKeySequence.Quit, statusTip='Exit', triggered=self.handle_quit)
-        self.runAct = QAction(QIcon.fromTheme('play'), '&Run', self, shortcut='Ctrl+R', statusTip='Run Program', triggered=self.handle_run)
-        self.haltAct = QAction(QIcon.fromTheme('stop'), '&Halt', self, shortcut='Ctrl+H', statusTip='Halt Program', triggered=self.handle_halt)
+        self.newAct = QAction(self.style().standardIcon(QStyle.SP_FileIcon),'&New', self, shortcut=QKeySequence.New, statusTip='New File', triggered=self.handle_new)
+        self.openAct = QAction(self.style().standardIcon(QStyle.SP_FileDialogContentsView), '&Open', self, shortcut=QKeySequence.Open, statusTip='Open File', triggered=self.handle_open)
+        self.saveAct = QAction(self.style().standardIcon(QStyle.SP_DialogSaveButton),'&Save', self, shortcut=QKeySequence.Save, statusTip='Save File', triggered=self.handle_save)
+        self.saveAsAct = QAction(self.style().standardIcon(QStyle.SP_FileDialogStart), '&Save as ...', self, shortcut=QKeySequence.SaveAs, statusTip='Save File As', triggered=self.handle_save_as)
+        self.exitAct = QAction(self.style().standardIcon(QStyle.SP_TitleBarCloseButton), 'Exit', self, shortcut=QKeySequence.Quit, statusTip='Exit', triggered=self.handle_quit)
+        self.runAct = QAction(self.style().standardIcon(QStyle.SP_MediaPlay), '&Run', self, shortcut='Ctrl+R', statusTip='Run Program', triggered=self.handle_run)
+        self.haltAct = QAction(self.style().standardIcon(QStyle.SP_MediaStop), '&Halt', self, shortcut='Ctrl+H', statusTip='Halt Program', triggered=self.handle_halt)
         
         bar=self.menuBar()
         bar.setStyleSheet(stylesheet)
@@ -86,25 +91,42 @@ class Simpy(QMainWindow):
         self.filemenu.addSeparator()
         self.filemenu.addAction(self.exitAct)
         
+        self.undoAct = QAction('Undo', self, triggered = self.editor.undo, shortcut = 'Ctrl+z')
+        self.redoAct = QAction('Redo', self, triggered = self.editor.redo, shortcut = 'Shift+Ctrl+z')
+        
         editmenu = bar.addMenu('Edit')
         editmenu.setStyleSheet(stylesheet)
-        editmenu.addAction(QAction(QIcon.fromTheme('edit-undo'), 'Undo', self, triggered = self.editor.undo, shortcut = 'Ctrl+z'))
-        editmenu.addAction(QAction(QIcon.fromTheme('edit-redo'), 'Redo', self, triggered = self.editor.redo, shortcut = 'Shift+Ctrl+z'))
+        editmenu.addAction(self.undoAct)
+        editmenu.addAction(self.redoAct)
         editmenu.addSeparator()
-        editmenu.addAction(QAction(QIcon.fromTheme('edit-copy'), 'Copy', self, triggered = self.editor.copy, shortcut = 'Ctrl+c'))
-        editmenu.addAction(QAction(QIcon.fromTheme('edit-cut'), 'Cut', self, triggered = self.editor.cut, shortcut = 'Ctrl+x'))
-        editmenu.addAction(QAction(QIcon.fromTheme('edit-paste'), 'Paste', self, triggered = self.editor.paste, shortcut = 'Ctrl+v'))
-        editmenu.addAction(QAction(QIcon.fromTheme('edit-delete'), 'Delete', self, triggered = self.editor.cut, shortcut = 'Del'))
+        editmenu.addAction(QAction('Copy', self, triggered = self.editor.copy, shortcut = 'Ctrl+c'))
+        editmenu.addAction(QAction('Cut', self, triggered = self.editor.cut, shortcut = 'Ctrl+x'))
+        editmenu.addAction(QAction('Paste', self, triggered = self.editor.paste, shortcut = 'Ctrl+v'))
+        editmenu.addAction(QAction('Delete', self, triggered = self.editor.cut, shortcut = 'Del'))
         editmenu.addSeparator()
-        editmenu.addAction(QAction(QIcon.fromTheme('edit-select-all'), 'Select All', self, triggered = self.editor.selectAll, shortcut = 'Ctrl+a'))
+        editmenu.addAction(QAction('Select All', self, triggered = self.editor.selectAll, shortcut = 'Ctrl+a'))
         
         programmenu = bar.addMenu('Program')
         programmenu.setStyleSheet(stylesheet)
         programmenu.addAction(self.runAct)
         programmenu.addAction(self.haltAct)
                 
+        toolbar = self.addToolBar('File')
+        toolbar.setStyleSheet(stylesheet)
+        toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        toolbar.setContextMenuPolicy(Qt.PreventContextMenu)
+        toolbar.setIconSize(QSize(iconsize))
+        toolbar.setMovable(True)
+        toolbar.setAllowedAreas(Qt.AllToolBarAreas)
+        toolbar.addAction(self.newAct)
+        toolbar.addAction(self.openAct)
+        toolbar.addAction(self.saveAct)
+        toolbar.addSeparator()
+        toolbar.addAction(self.exitAct)
+        
         toolbar = self.addToolBar('Program')
         toolbar.setStyleSheet(stylesheet)
+        toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         toolbar.setContextMenuPolicy(Qt.PreventContextMenu)
         toolbar.setIconSize(QSize(iconsize))
         toolbar.setMovable(True)
@@ -134,11 +156,11 @@ class Simpy(QMainWindow):
             QMessageBox.critical(None, 'Systray', 'No system tray found.')
         else:
             self.trayIcon = QSystemTrayIcon(self)
-            self.trayIcon.setIcon(QIcon.fromTheme('applications-python'))
+            self.trayIcon.setIcon(self.simpy_icon)
             self.trayIconMenu = QMenu(self)
             self.trayIconMenu.addAction(self.runAct)
             self.trayIconMenu.addAction(self.haltAct)
-            self.trayIconMenu.addAction(QAction(QIcon.fromTheme('application-exit'),'Exit', self, triggered=self.handle_quit))
+            self.trayIconMenu.addAction(self.exitAct)
             self.trayIcon.setContextMenu(self.trayIconMenu)
             self.trayIcon.show()
         

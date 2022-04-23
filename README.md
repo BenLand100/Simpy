@@ -1,6 +1,7 @@
 # Simpy
 
 ![Simpy](simpy/icons/simpy_128x128.png)
+
 Simpy is a minimal clone of the popular automation utility 
 [Simba](https://github.com/MerlijnWajer/Simba), writen in Python and targeting 
 Python as a scripting language. 

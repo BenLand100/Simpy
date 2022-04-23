@@ -66,6 +66,7 @@ class Simpy(QMainWindow):
         self.terminal = QTextEdit()
         self.terminal.setTextInteractionFlags(Qt.TextSelectableByMouse)
         self.terminal.setMinimumHeight(30)
+        self.terminal.setFont(QFont('Monospace',12))
         self.terminal.setStyleSheet(stylesheet)
         
         self.numbers = NumberBar(self.editor)
@@ -121,8 +122,6 @@ class Simpy(QMainWindow):
         toolbar.addAction(self.newAct)
         toolbar.addAction(self.openAct)
         toolbar.addAction(self.saveAct)
-        toolbar.addSeparator()
-        toolbar.addAction(self.exitAct)
         
         toolbar = self.addToolBar('Program')
         toolbar.setStyleSheet(stylesheet)

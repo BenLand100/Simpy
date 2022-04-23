@@ -34,6 +34,14 @@ Press `Run` on the GUI to execute the open file.
 
 You can probably figure out the how to use it without further instructions.
 
+## Screenshots
+
+Simpy will adapt to your system theme.
+
+![Simpy on a light theme](screenshots/simpy_light.png)
+
+![Simpy on a dark theme](screenshots/simpy_dark.png)
+
 ## Copying
 
 Copyright 2021 by Benjamin J. Land (a.k.a. BenLand100). 

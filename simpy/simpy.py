@@ -26,7 +26,7 @@ import signal
 import sys
 import re
 
-iconsize = QSize(32, 32)
+iconsize = QSize(24, 24)
 
 stylesheet = ''
   
@@ -39,7 +39,7 @@ class Simpy(QMainWindow):
         self.app = app
         
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.app_path = QFileInfo.path(QFileInfo(QCoreApplication.arguments()[0]))
+        self.app_path = os.path.dirname(os.path.abspath(__file__))
         
         self.simpy_icon = QIcon()
         self.simpy_icon.addFile(os.path.join(self.app_path,'icons/simpy_128x128.png'))
@@ -388,3 +388,28 @@ class Simpy(QMainWindow):
         highlighted_line.cursor.clearSelection()
         '''
         self.editor.setExtraSelections([])
+        
+def launch():
+    app = QApplication(sys.argv)
+    simpy = Simpy(app=app)   
+    simpy.show()    
+    
+    
+    #pythonpath = [os.path.join(simpy.app_path,"library")]
+    #if 'PYTHONPATH' in os.environ:
+    #    pythonpath.append(os.environ['PYTHONPATH'])
+    #os.environ['PYTHONPATH'] = ':'.join(pythonpath)
+    #print(os.environ['PYTHONPATH'])
+    
+    if len(sys.argv) > 1:
+        win.open_file(sys.argv[1]) #chdir's on its own
+    else:
+        #os.chdir(os.path.expanduser('~')) 
+        try:
+            root = os.path.dirname(simpy.app_path)
+            os.chdir(cwd:=os.path.join(root,'examples'))
+            print('Changed to',cwd)
+        except:
+            print('Could not change to base directory - probably running from a package')
+
+    sys.exit(app.exec_())

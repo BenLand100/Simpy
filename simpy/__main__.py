@@ -20,13 +20,25 @@ from .simpy import Simpy
 from PyQt5.QtWidgets import QApplication
 
 import sys
+import os
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    win = Simpy()
-    win.show()
+    simpy = Simpy(app=app)   
+    simpy.show()     
+    
+    #pythonpath = [os.path.join(simpy.app_path,"library")]
+    #if 'PYTHONPATH' in os.environ:
+    #    pythonpath.append(os.environ['PYTHONPATH'])
+    #os.environ['PYTHONPATH'] = ':'.join(pythonpath)
+    #print(os.environ['PYTHONPATH'])
+    
     if len(sys.argv) > 1:
-        win.open_file(sys.argv[1])
+        win.open_file(sys.argv[1]) #chdir's on its own
+    else:
+        #os.chdir(os.path.expanduser('~')) 
+        #assuming we're installed from a cloned repo...
+        os.chdir(os.path.join(simpy.app_path,'../examples'))
 
     sys.exit(app.exec_())
 

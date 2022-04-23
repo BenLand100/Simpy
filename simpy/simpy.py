@@ -33,8 +33,10 @@ stylesheet = ''
 default_script = '#/usr/bin/python3\n\nif __name__ == \'__main__\':\n    print(\'Hello World!\')'
 
 class Simpy(QMainWindow):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None, app=None):
         super(Simpy, self).__init__(parent)
+        
+        self.app = app
         
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.setWindowIcon(QIcon.fromTheme('applications-python'))
@@ -299,7 +301,8 @@ class Simpy(QMainWindow):
         
     def handle_quit(self):
         if self.maybe_save():
-            app.quit()
+            if self.app:
+                self.app.quit()
 
     def set_numbers_visible(self, value=True):
         self.numbers.setVisible(value)

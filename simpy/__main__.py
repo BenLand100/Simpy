@@ -24,7 +24,6 @@ import sys
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     win = Simpy()
-    win.setWindowTitle('Simpy - [unsaved][*]')
     win.show()
     if len(sys.argv) > 1:
         win.open_file(sys.argv[1])

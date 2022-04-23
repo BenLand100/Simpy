@@ -40,7 +40,6 @@ class Simpy(QMainWindow):
         self.setWindowIcon(QIcon.fromTheme('applications-python'))
 
         self.app_path = QFileInfo.path(QFileInfo(QCoreApplication.arguments()[0]))
-        self.filename = ''
         
         self.lineLabel = QLabel('[:]')
         self.statusBar().addPermanentWidget(self.lineLabel)
@@ -54,10 +53,8 @@ class Simpy(QMainWindow):
         self.editor.customContextMenuRequested.connect(self.context_menu_requested)
         self.editor.cursorPositionChanged.connect(self.cursor_changed)
         self.editor.document().modificationChanged.connect(self.setWindowModified)
-        self.editor.setPlainText(default_script)
         self.cursor = QTextCursor()
         self.editor.setTextCursor(self.cursor)
-        self.editor.moveCursor(self.cursor.Start)
         
         self.terminal = QTextEdit()
         self.terminal.setTextInteractionFlags(Qt.TextSelectableByMouse)
@@ -144,7 +141,15 @@ class Simpy(QMainWindow):
             self.trayIcon.show()
         
         self.load_settings()
+        self.editor.clear()
+        self.editor.setPlainText(default_script)
+        self.set_filename('')
+        self.set_modified(False)
+        self.editor.moveCursor(self.cursor.End)
+        self.editor.setFocus()
+        self.setWindowTitle('Simpy - [unsaved][*]')
         self.status('Welcome to Simpy!')
+        
         
     def status(self,msg):
         self.statusBar().showMessage(msg)
@@ -176,10 +181,10 @@ class Simpy(QMainWindow):
         if self.maybe_save():
             self.editor.clear()
             self.editor.setPlainText(default_script)
-            self.set_filename(None)
+            self.set_filename('')
             self.set_modified(False)
             self.editor.moveCursor(self.cursor.End)
-            self.log('New File Ceated')
+            self.log('New Program Ceated')
             self.editor.setFocus()
             self.setWindowTitle('Simpy - [unsaved][*]')
             

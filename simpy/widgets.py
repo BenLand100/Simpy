@@ -25,19 +25,110 @@ block_start = re.compile(r':\s*(#.*)*$')
 indent = re.compile(r'^(\s+)')
 deindent = re.compile(r'^ {0,4}')
 
+highlight_syms_left = {
+    '{':'}',
+    '[':']',
+    '(':')',
+    '[':']'
+}
+highlight_syms_right = {
+    l:r for r,l in highlight_syms_left.items()
+}
+
 class TextEdit(QPlainTextEdit):
     def __init__(self, parent=None):
         super(TextEdit, self).__init__(parent)
         self.setFont(QFont('Monospace',13))
         self.installEventFilter(self)
         self.setLineWrapMode(False)
-
+        self.cursorPositionChanged.connect(self.cursor_changed)
+        
+    def paintEvent(self,event):
+        super().paintEvent(event)
 
     def textUnderCursor(self):
         tc = self.textCursor()
         tc.select(QTextCursor.WordUnderCursor)
 
         return tc.selectedText()
+
+    def highlight_braces_from(self,pos,char,left):
+        c_0 = self.textCursor()
+        c_0.setPosition(pos-1)
+        c_0.movePosition(QTextCursor.Right,QTextCursor.KeepAnchor)
+        extra = QTextEdit.ExtraSelection()
+        extra.format.setBackground(gruvbox.neutral_blue);
+        extra.format.setForeground(gruvbox.neutral_red);
+        extra.cursor = c_0;
+        extra_selection = [extra]
+        
+        match = highlight_syms_left[char] if left else highlight_syms_right[char]
+        c_1 = self.textCursor()
+        c_1.setPosition(pos)
+        c_1.movePosition(QTextCursor.StartOfBlock)
+        search_pos = pos-c_1.position()-1
+        search_txt = c_1.block().text()
+        found = False
+        if left:
+            search_pos = search_pos + 1
+        else:
+            search_pos = search_pos - 1
+        depth = 0
+        while not found:
+            for i in (range(search_pos,len(search_txt)) if left else range(search_pos,-1,-1)):
+                if search_txt[i] == char:
+                    depth = depth+1
+                elif search_txt[i] == match:
+                    if depth <= 0:
+                        c_1.setPosition(i+c_1.position())
+                        c_1.movePosition(QTextCursor.Right,QTextCursor.KeepAnchor)
+                        extra = QTextEdit.ExtraSelection()
+                        extra.format.setBackground(gruvbox.neutral_blue);
+                        extra.format.setForeground(gruvbox.neutral_red);
+                        extra.cursor = c_1;
+                        extra_selection.append(extra)
+                        found = True
+                        break
+                    else:
+                        depth = depth-1
+            else:
+                if left:
+                    if c_1.blockNumber() == self.blockCount()-1:
+                        break
+                    c_1.movePosition(QTextCursor.NextBlock)
+                else:
+                    if c_1.blockNumber() == 0:
+                        break
+                    c_1.movePosition(QTextCursor.PreviousBlock)
+                search_txt = c_1.block().text()
+                search_pos = 0 if left else len(search_txt)-1
+        self.setExtraSelections(extra_selection)
+
+    def cursor_changed(self):
+        c = self.textCursor()
+        txt = c.block().text()
+        if len(txt) == 0:
+            return
+        pos = c.positionInBlock()-1
+        if pos >= 0 and pos < len(txt):
+            pre = txt[pos]
+            if pre in highlight_syms_left:
+                self.highlight_braces_from(c.position(),pre,True)
+                return
+            if pre in highlight_syms_right:
+                self.highlight_braces_from(c.position(),pre,False)
+                return
+        if pos+1 < len(txt):
+            post = txt[pos+1]
+            c.movePosition(QTextCursor.Right)
+            if post in highlight_syms_left:
+                self.highlight_braces_from(c.position(),post,True)
+                return
+            if post in highlight_syms_right:
+                self.highlight_braces_from(c.position(),post,False)
+                return
+        self.setExtraSelections([])
+            
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Tab:

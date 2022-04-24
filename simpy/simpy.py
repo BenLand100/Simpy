@@ -377,17 +377,6 @@ class Simpy(QMainWindow):
             e.accept()
         else:
             e.ignore()
-            
-    def paintEvent(self, event):
-        '''
-        #Gotta figure out a better color for line highlight, if kept
-        highlighted_line = QTextEdit.ExtraSelection()
-        highlighted_line.format.setBackground(gruvbox.gray)
-        highlighted_line.format.setProperty(QTextFormat.FullWidthSelection, QVariant(True))
-        highlighted_line.cursor = self.editor.textCursor()
-        highlighted_line.cursor.clearSelection()
-        '''
-        self.editor.setExtraSelections([])
         
 def launch():
     app = QApplication(sys.argv)

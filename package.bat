@@ -1,1 +1,1 @@
-pyinstaller --onefile --windowed Simpy.py
+pyinstaller --onefile --windowed bin/Simpy.py

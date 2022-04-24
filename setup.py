@@ -24,7 +24,7 @@ setuptools.setup(
         "Operating System :: OS Independent"
     ],
     packages=['simpy'],
-    scripts=['Simpy'],
+    scripts=['bin/Simpy'],
     python_requires=">=3.9",
     install_requires=[
         "PyQt5",

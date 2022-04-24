@@ -40,8 +40,22 @@ class TextEdit(QPlainTextEdit):
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Tab:
-            self.textCursor().insertText('    ')
-            return
+            c = self.textCursor()
+            if c.hasSelection():
+                ''' #FIXME indent, unindent lines
+                s,e = c.selectionStart(),c.selectionEnd()
+                c.setPosition(e)
+                c.movePosition(QTextCursor.StartOfLine);   
+                e_block = c.blockNumber()
+                c.setPosition(s)
+                while c.
+                    c.movePosition(QTextCursor.StartOfLine);   
+                    c.insertText('    ')
+                '''
+                return #ignore for now
+            else:
+                c.insertText('    ')
+                return
         elif e.key() == Qt.Key_Return:
             c = self.textCursor()
             c.movePosition(QTextCursor.StartOfLine);   
@@ -102,7 +116,7 @@ class NumberBar(QWidget):
                 block_top = block_geometry.translated(offset).top()
                 number += 1
 
-                rect = QRect(0, block_top + 2, self.width() - 5, height)
+                rect = QRect(0, int(block_top + 2), int(self.width() - 5), int(height))
 
                 if number == current_block:
                     font.setBold(True)

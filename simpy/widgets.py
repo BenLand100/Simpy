@@ -23,6 +23,7 @@ import re
 
 block_start = re.compile(r':\s*(#.*)*$')
 indent = re.compile(r'^(\s+)')
+deindent = re.compile(r'^ {0,4}')
 
 class TextEdit(QPlainTextEdit):
     def __init__(self, parent=None):
@@ -42,23 +43,49 @@ class TextEdit(QPlainTextEdit):
         if e.key() == Qt.Key_Tab:
             c = self.textCursor()
             if c.hasSelection():
-                ''' #FIXME indent, unindent lines
-                s,e = c.selectionStart(),c.selectionEnd()
-                c.setPosition(e)
-                c.movePosition(QTextCursor.StartOfLine);   
+                start,end = c.selectionStart(),c.selectionEnd()
+                c.setPosition(end)
+                c.movePosition(QTextCursor.StartOfBlock)
                 e_block = c.blockNumber()
-                c.setPosition(s)
-                while c.
-                    c.movePosition(QTextCursor.StartOfLine);   
+                c.setPosition(start)
+                c.movePosition(QTextCursor.StartOfBlock)
+                while True:
                     c.insertText('    ')
-                '''
-                return #ignore for now
+                    if c.blockNumber() == e_block:
+                        break;
+                    c.movePosition(QTextCursor.NextBlock)
             else:
                 c.insertText('    ')
-                return
+            return
+        elif e.key() == Qt.Key_Backtab:
+            c = self.textCursor()
+            if c.hasSelection():
+                start,end = c.selectionStart(),c.selectionEnd()
+                c.setPosition(end)
+                c.movePosition(QTextCursor.StartOfBlock)
+                e_block = c.blockNumber()
+                c.setPosition(start)
+                c.movePosition(QTextCursor.StartOfBlock)
+                while True:
+                    text = c.block().text()
+                    if (m := deindent.search(text)):
+                        remove = len(m.group(0))
+                        c.movePosition(QTextCursor.Right,QTextCursor.KeepAnchor,remove)
+                        c.removeSelectedText()
+                    if c.blockNumber() == e_block:
+                        break;
+                    c.movePosition(QTextCursor.NextBlock)
+            else:
+                c.movePosition(QTextCursor.StartOfBlock)
+                text = c.block().text()
+                if (m := deindent.search(text)):
+                    remove = len(m.group(0))
+                    c.movePosition(QTextCursor.Right,QTextCursor.KeepAnchor,remove)
+                    c.removeSelectedText()
+            return
         elif e.key() == Qt.Key_Return:
             c = self.textCursor()
-            c.movePosition(QTextCursor.StartOfLine);   
+            c.movePosition(QTextCursor.StartOfBlock);
             while c.positionInBlock() > 0:
                 c.movePosition(QTextCursor.Up);
             line = c.block().text()

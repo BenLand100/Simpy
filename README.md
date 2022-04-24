@@ -3,8 +3,12 @@
 ![Simpy](simpy/icons/simpy_128x128.png)
 
 Simpy is a minimal clone of the popular automation utility 
-[Simba](https://github.com/MerlijnWajer/Simba), writen in Python and targeting 
-Python as a scripting language. 
+[Simba](https://github.com/MerlijnWajer/Simba), but written in Python, and 
+targeting Python as a scripting language. This gives Simpy the entirety of the
+Python ecosystem to use in automation tasks, while providing a simple and 
+familiar interface. Simpy's main contribution to this effort is a library
+tailored to finding things on the screen and using the keyboard in mouse, and 
+pulling together [libraries](#Dependencies) that help with these tasks.
 
 ## Installing
 
@@ -20,6 +24,9 @@ pip install --user git+https://github.com/BenLand100/Simpy
 ```
 
 This will also install all dependencies of Simpy, which do all the heavy lifting.
+
+### Dependencies
+
 * [PyQt5](https://pypi.org/project/PyQt5/)
 * [PyAutoGUI](https://pyautogui.readthedocs.io/en/latest/)
 * [NumPy](https://numpy.org/)
